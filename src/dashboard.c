@@ -2,6 +2,47 @@
 #include "dashboard.h"
 #include <string.h>
 
+static unsigned long prev_idle  = 0;
+static unsigned long prev_total = 0;
+
+static float read_cpu_usage(void) {
+    FILE *fp = fopen("/proc/stat", "r");
+    if (!fp) {
+        return 0.0f;
+    }
+
+    char label[16];
+    unsigned long user, nice, system, idle, iowait, irq, softirq, steal;
+    int matched = fscanf(fp, "%15s %lu %lu %lu %lu %lu %lu %lu %lu", label, &user, &nice, &system, &idle, &iowait, &irq, &softirq, &steal);
+    fclose(fp);
+
+    if (matched < 9) {
+        return 0.0f;
+    }
+
+    unsigned long idle_time = idle + iowait;
+    unsigned long total = user + nice + system + idle + iowait + irq + softirq + steal;
+
+    if (prev_total == 0) {
+        prev_idle  = idle_time;
+        prev_total = total;
+        return 0.0f;
+    }
+
+    unsigned long d_idle  = idle_time - prev_idle;
+    unsigned long d_total = total - prev_total;
+
+    prev_idle  = idle_time;
+    prev_total = total;
+
+    if (d_total == 0) {
+        return 0.0f;
+    }
+
+    float usage = 1.0f - ((float)d_idle / (float)d_total);
+    return usage * 100.0f;
+}
+
 static unsigned long read_uptime(void) {
     FILE *fp = fopen("/proc/uptime", "r");
     if (!fp) {
@@ -60,6 +101,7 @@ static void print_uptime(unsigned long uptime) {
 void dashboard_run(const SystemInfo *sys_info) {
     printf("ARIEL SYSTEM MONITOR\n");
     printf("--------------------\n\n");
+
     printf("CPU:    %.2f%%\n", sys_info->cpu_usage);
 
     if (sys_info->ram_total_kb > 0) {
@@ -82,7 +124,7 @@ void dashboard_run(const SystemInfo *sys_info) {
 SystemInfo system_information() {
     SystemInfo sys_info;
     
-    sys_info.cpu_usage = 45.5;
+    sys_info.cpu_usage = read_cpu_usage();
     sys_info.disk_usage = 80.1;
     sys_info.uptime = read_uptime();
     read_ram_info(&sys_info);

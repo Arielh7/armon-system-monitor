@@ -4,7 +4,8 @@
 
 typedef struct {
     float cpu_usage;
-    float ram_usage;
+    unsigned long ram_total_kb;
+    unsigned long ram_used_kb; 
     float disk_usage;
     unsigned long uptime;
 } SystemInfo;

@@ -1,9 +1,30 @@
 #include <stdio.h>
 #include "dashboard.h"
 #include <string.h>
+#include "render.h"
+#include <sys/statvfs.h>
+
 
 static unsigned long prev_idle  = 0;
 static unsigned long prev_total = 0;
+
+static void read_disk_info(SystemInfo *sys_info) {
+    sys_info->disk_total_kb = 0;
+    sys_info->disk_used_kb  = 0;
+
+    struct statvfs info;
+    if (statvfs("/", &info) != 0) {
+        return;
+    }
+
+    unsigned long block_size = info.f_frsize;
+    unsigned long total_bytes = info.f_blocks * block_size;
+    unsigned long avail_bytes = info.f_bavail * block_size;
+
+    sys_info->disk_total_kb = total_bytes / 1024;
+    sys_info->disk_used_kb  = (total_bytes - avail_bytes) / 1024;
+}
+
 
 static float read_cpu_usage(void) {
     FILE *fp = fopen("/proc/stat", "r");
@@ -43,6 +64,9 @@ static float read_cpu_usage(void) {
     return usage * 100.0f;
 }
 
+
+
+
 static unsigned long read_uptime(void) {
     FILE *fp = fopen("/proc/uptime", "r");
     if (!fp) {
@@ -54,6 +78,9 @@ static unsigned long read_uptime(void) {
 
     return seconds;
 }
+
+
+
 
 static void read_ram_info(SystemInfo *sys_info) {
     sys_info->ram_total_kb = 0;
@@ -90,44 +117,17 @@ static void read_ram_info(SystemInfo *sys_info) {
     sys_info->ram_used_kb  = total - available;
 }
 
-static void print_uptime(unsigned long uptime) {
-    unsigned long hours   = uptime / 3600;
-    unsigned long minutes = (uptime % 3600) / 60;
-    unsigned long seconds = uptime % 60;
 
-    printf("%luh %02lum %02lus", hours, minutes, seconds);
-}
 
-void dashboard_run(const SystemInfo *sys_info) {
-    printf("ARIEL SYSTEM MONITOR\n");
-    printf("--------------------\n\n");
 
-    printf("CPU:    %.2f%%\n", sys_info->cpu_usage);
-
-    if (sys_info->ram_total_kb > 0) {
-        float used_gb  = (float)sys_info->ram_used_kb  / (1024.0f * 1024.0f);
-        float total_gb = (float)sys_info->ram_total_kb / (1024.0f * 1024.0f);
-        float percent  = (float)sys_info->ram_used_kb
-                       / (float)sys_info->ram_total_kb * 100.0f;
-        printf("RAM:    %.2f GB / %.2f GB (%.1f%%)\n",
-               used_gb, total_gb, percent);
-    } else {
-        printf("RAM:    N/A\n");
-    }
-
-    printf("Disk:   %.2f%%\n", sys_info->disk_usage);
-    printf("Uptime: ");
-    print_uptime(sys_info->uptime);
-    printf("\n");
-}
 
 SystemInfo system_information() {
     SystemInfo sys_info;
     
     sys_info.cpu_usage = read_cpu_usage();
-    sys_info.disk_usage = 80.1;
     sys_info.uptime = read_uptime();
     read_ram_info(&sys_info);
+    read_disk_info(&sys_info);
 
     return sys_info;
 }

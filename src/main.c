@@ -3,6 +3,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include "dashboard.h"
+#include "render.h"
 
 static void cleanup(int sig) {
     (void)sig;

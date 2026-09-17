@@ -12,6 +12,10 @@ typedef struct {
     unsigned long uptime;
     char hostname[64]; 
     char kernel[256]; 
+    float load_1min;      
+    float load_5min;      
+    float load_15min;     
+    int   cpu_cores;   
     
 } SystemInfo;
 

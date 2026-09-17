@@ -140,9 +140,27 @@ static void read_ram_info(SystemInfo *sys_info) {
     sys_info->swap_used_kb  = swap_total - swap_free; 
 }
 
+static void read_loadavg(SystemInfo *sys_info) {
+    sys_info->load_1min  = 0.0f;
+    sys_info->load_5min  = 0.0f;
+    sys_info->load_15min = 0.0f;
 
+    FILE *fp = fopen("/proc/loadavg", "r");
+    if (!fp) {
+        return;
+    }
 
+    fscanf(fp, "%f %f %f",
+           &sys_info->load_1min,
+           &sys_info->load_5min,
+           &sys_info->load_15min);
+    fclose(fp);
+}
 
+static void read_cpu_cores(SystemInfo *sys_info) {
+    long cores = sysconf(_SC_NPROCESSORS_ONLN);
+    sys_info->cpu_cores = (cores > 0) ? (int)cores : 1;
+}
 
 SystemInfo system_information() {
     SystemInfo sys_info;
@@ -152,6 +170,8 @@ SystemInfo system_information() {
     read_ram_info(&sys_info);
     read_disk_info(&sys_info);
     read_system_info(&sys_info);
+    read_loadavg(&sys_info);
+    read_cpu_cores(&sys_info);
 
     return sys_info;
 }

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g -std=c11 -Iinclude
+CFLAGS = -Wall -Wextra -g -std=gnu11 -Iinclude
 TARGET = build/armon
 SRCS = $(wildcard src/*.c)
 OBJS = $(SRCS:src/%.c=build/%.o)

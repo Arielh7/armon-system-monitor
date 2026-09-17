@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "dashboard.h"
 #include "render.h"
+#include "splash.h"
 
 static void cleanup(int sig) {
     (void)sig;
@@ -16,8 +17,15 @@ static void cleanup(int sig) {
 int main(void) {
     signal(SIGINT, cleanup);
 
-    printf("\033[?1049h");    
-    printf("\033[?25l");      
+    printf("\033[?1049h");
+    printf("\033[?25l");
+
+
+    printf("\033[2J\033[H");
+    splash_screen();
+
+  
+    printf("\033[2J\033[H"); 
 
     while (1) {
         SystemInfo sys_info = system_information();

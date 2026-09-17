@@ -2,6 +2,10 @@
 #include "render.h"
 #include "colors.h"
 #include "health.h"
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <string.h>
+#include <unistd.h>
 
 static void print_uptime(unsigned long uptime) {
     unsigned long hours   = uptime / 3600;
@@ -10,10 +14,26 @@ static void print_uptime(unsigned long uptime) {
 
     printf("%luh %02lum %02lus", hours, minutes, seconds);
 }
-void dashboard_run(const SystemInfo *sys_info) {
-    printf("ARMON - System Monitor v0.1\n");
-    printf("===========================\n\n");
 
+
+void dashboard_run(const SystemInfo *sys_info) {
+
+    printf("\nARMON - System Monitor v0.2\n\n");
+
+    char header_line[512];
+    snprintf(header_line, sizeof(header_line),
+             "Host: %s  |  Kernel: %s",
+             sys_info->hostname, sys_info->kernel);
+
+    printf("%s\n", header_line);
+
+
+    int len = strlen(header_line);
+    for (int i = 0; i < len; i++) {
+        printf("\xE2\x94\x80");   // ─
+    }
+    printf("\n\n");
+     
   
     HealthStatus health = health_compute(sys_info);
     const char *health_color;
@@ -43,6 +63,18 @@ void dashboard_run(const SystemInfo *sys_info) {
                "RAM Usage:", used_gb, total_gb, color_for_percent(percent), percent, COLOR_RESET);
     } else {
         printf("%-15s N/A\n", "RAM Usage:");
+    }
+
+    if (sys_info->swap_total_kb > 0) {
+        float used_gb  = (float)sys_info->swap_used_kb  / (1024.0f * 1024.0f);
+        float total_gb = (float)sys_info->swap_total_kb / (1024.0f * 1024.0f);
+        float percent  = (float)sys_info->swap_used_kb
+                       / (float)sys_info->swap_total_kb * 100.0f;
+        printf("%-15s %.2f GB / %.2f GB (%s%.1f%%%s)\n",
+               "Swap Usage:", used_gb, total_gb,
+               color_for_percent(percent), percent, COLOR_RESET);
+    } else {
+        printf("%-15s N/A\n", "Swap Usage:");
     }
 
         if (sys_info->disk_total_kb > 0) {

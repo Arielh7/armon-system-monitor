@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "render.h"
-#include "dashboard.h"
+#include "colors.h"
+#include "health.h"
 
 static void print_uptime(unsigned long uptime) {
     unsigned long hours   = uptime / 3600;
@@ -13,29 +14,48 @@ void dashboard_run(const SystemInfo *sys_info) {
     printf("ARMON - System Monitor v0.1\n");
     printf("===========================\n\n");
 
-    printf("%-15s %.2f%%\n", "CPU Usage:", sys_info->cpu_usage);
+  
+    HealthStatus health = health_compute(sys_info);
+    const char *health_color;
+    switch (health) {
+        case HEALTH_OK:       health_color = COLOR_GREEN;  break;
+        case HEALTH_WARN:     health_color = COLOR_YELLOW; break;
+        case HEALTH_CRITICAL: health_color = COLOR_RED;    break;
+    }
+    printf("System Health:  %s\xE2\x97\x8F %s%s\n\n",
+           health_color,   
+           health_label(health),
+           COLOR_RESET);
+
+
+    printf("%-15s %s%.2f%%%s\n",
+       "CPU Usage:",
+       color_for_percent(sys_info->cpu_usage),
+       sys_info->cpu_usage,
+       COLOR_RESET);
 
     if (sys_info->ram_total_kb > 0) {
         float used_gb  = (float)sys_info->ram_used_kb  / (1024.0f * 1024.0f);
         float total_gb = (float)sys_info->ram_total_kb / (1024.0f * 1024.0f);
         float percent  = (float)sys_info->ram_used_kb
                        / (float)sys_info->ram_total_kb * 100.0f;
-        printf("%-15s %.2f GB / %.2f GB (%.1f%%)\n",
-               "RAM Usage:", used_gb, total_gb, percent);
+        printf("%-15s %.2f GB / %.2f GB (%s%.1f%%%s)\n",
+               "RAM Usage:", used_gb, total_gb, color_for_percent(percent), percent, COLOR_RESET);
     } else {
         printf("%-15s N/A\n", "RAM Usage:");
     }
 
-    if (sys_info->disk_total_kb > 0) {
-    float used_gb  = (float)sys_info->disk_used_kb  / (1024.0f * 1024.0f);
-    float total_gb = (float)sys_info->disk_total_kb / (1024.0f * 1024.0f);
-    float percent  = (float)sys_info->disk_used_kb
-                   / (float)sys_info->disk_total_kb * 100.0f;
-    printf("%-15s %.2f GB / %.2f GB (%.1f%%)\n",
-           "Disk Usage:", used_gb, total_gb, percent);
-} else {
-    printf("%-15s N/A\n", "Disk Usage:");
-}
+        if (sys_info->disk_total_kb > 0) {
+        float used_gb  = (float)sys_info->disk_used_kb  / (1024.0f * 1024.0f);
+        float total_gb = (float)sys_info->disk_total_kb / (1024.0f * 1024.0f);
+        float percent  = (float)sys_info->disk_used_kb
+                       / (float)sys_info->disk_total_kb * 100.0f;
+        printf("%-15s %.2f GB / %.2f GB (%s%.1f%%%s)\n",
+               "Disk Usage:", used_gb, total_gb,
+               color_for_percent(percent), percent, COLOR_RESET);
+    } else {
+        printf("%-15s N/A\n", "Disk Usage:");
+    }
 
     printf("%-15s ", "System Uptime:");
     print_uptime(sys_info->uptime);

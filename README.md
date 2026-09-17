@@ -24,8 +24,8 @@ A terminal-based system monitor written in C. Displays real-time CPU, RAM, disk 
 ## Build
 
 ```bash
-git clone <repo-url>
-cd armon
+git clone https://github.com/Arielh7/armon-system-monitor.git
+cd armon-system-monitor
 make
 ```
 
@@ -61,14 +61,15 @@ System Uptime:  0h 39m 58s
 armon/
 ├── Makefile
 ├── README.md
+├── LICENSE
 ├── .gitignore
 ├── include/
-│   ├── dashboard.h     # SystemInfo struct + public API
-│   └── render.h        # Rendering API
+│   ├── dashboard.h
+│   └── render.h
 └── src/
-    ├── main.c          # Entry point + main loop
-    ├── dashboard.c     # Reads system metrics from /proc and statvfs
-    └── render.c        # Prints the dashboard to the terminal
+    ├── main.c
+    ├── dashboard.c
+    └── render.c
 ```
 
 ### Architecture

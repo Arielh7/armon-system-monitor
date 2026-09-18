@@ -120,10 +120,10 @@ static void read_ram_info(SystemInfo *sys_info) {
             sscanf(line, "MemAvailable: %lu", &available);
         }
 
-         else if (strncmp(line, "SwapTotal:", 10) == 0) {   // ← nuevo
+         else if (strncmp(line, "SwapTotal:", 10) == 0) {   
             sscanf(line, "SwapTotal: %lu", &swap_total);
         }
-        else if (strncmp(line, "SwapFree:", 9) == 0) {     // ← nuevo
+        else if (strncmp(line, "SwapFree:", 9) == 0) {  
             sscanf(line, "SwapFree: %lu", &swap_free);
         }
     }

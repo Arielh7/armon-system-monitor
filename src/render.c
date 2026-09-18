@@ -15,20 +15,20 @@ static void print_uptime(unsigned long uptime) {
 }
 
 static void print_separator(int width) {
-    printf(COLOR_BLUE);
+    printf(COLOR_CHROME);
     for (int i = 0; i < width; i++) {
         printf("\xE2\x94\x81");
     }
-    printf(COLOR_RESET "\n\n");
+    printf(COLOR_RESET "\n");
 }
 
 static void print_section_title(const char *title, int width) {
-    printf(COLOR_BOLD COLOR_BLUE " \xE2\x96\xAA %s" COLOR_RESET "\n", title);
+    printf(COLOR_BOLD COLOR_CHROME " \xE2\x96\xB8 %s" COLOR_RESET "\n", title);
     print_separator(width);
 }
 
 void dashboard_run(const SystemInfo *sys_info) {
-    printf("\n" COLOR_BOLD COLOR_BLUE "ARMON - System Monitor v0.2" COLOR_RESET "\n\n");
+    printf("\n" COLOR_BOLD COLOR_CHROME "ARMON - System Monitor v0.2" COLOR_RESET "\n\n");
 
     char header_line[512];
     snprintf(header_line, sizeof(header_line),

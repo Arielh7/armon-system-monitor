@@ -29,8 +29,8 @@ int main(void) {
 
     while (1) {
         SystemInfo sys_info = system_information();
-        printf("\033[H");
-        dashboard_run(&sys_info);
+        printf("\033[H\033[J");
+dashboard_run(&sys_info);
         sleep(1);
     }
 

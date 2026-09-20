@@ -5,6 +5,7 @@
 #include "dashboard.h"
 #include "render.h"
 #include "splash.h"
+#include "cli.h"
 
 static volatile sig_atomic_t resized = 0;
 
@@ -21,7 +22,22 @@ static void on_resize(int sig) {
     resized = 1;
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
+    CliOptions opts;
+    if (cli_parse(argc, argv, &opts) != 0) {
+        return 1;
+    }
+
+    if (opts.show_help) {
+        cli_print_help();
+        return 0;
+    }
+
+    if (opts.show_version) {
+        cli_print_version();
+        return 0;
+    }
+
     signal(SIGINT, cleanup);
     signal(SIGWINCH, on_resize);
 

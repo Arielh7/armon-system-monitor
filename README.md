@@ -23,7 +23,8 @@ metrics by reading directly from the Linux kernel interfaces.
 - **Splash screen** - a brief startup screen when the program launches
 - **Live refresh** - updates every second (configurable)
 - **Clean terminal UI** - uses the alternate screen buffer so it doesn't
-  pollute scrollback, and restores the terminal cleanly on Ctrl+C
+  pollute scrollback, restores the terminal cleanly on Ctrl+C, and uses
+  an output buffer to avoid flicker between frames
 - **Command-line flags** - `--help`, `--version`, `--oneshot`, `--interval`
 
 ## Requirements
@@ -163,7 +164,8 @@ armon/
 │   ├── health.h       # Global health status
 │   ├── processes.h    # Process listing (top by RAM)
 │   ├── splash.h       # Splash screen
-│   └── cli.h          # Command-line argument parsing
+│   ├── cli.h          # Command-line argument parsing
+│   └── output.h       # Buffered output API
 └── src/
     ├── main.c         # Entry point, main loop, signal handling
     ├── dashboard.c    # Reads system metrics from /proc and statvfs
@@ -172,7 +174,8 @@ armon/
     ├── health.c       # Computes the overall health status
     ├── processes.c    # Reads and sorts processes from /proc
     ├── splash.c       # Startup splash screen
-    └── cli.c          # Command-line argument parsing
+    ├── cli.c          # Command-line argument parsing
+    └── output.c       # Buffered output implementation
 ```
 
 ### Architecture
@@ -192,6 +195,8 @@ The project is split into clear responsibilities:
   to list processes, sorted by RAM usage.
 - **`splash.c`** - displays the startup screen.
 - **`cli.c`** - parses command-line arguments.
+- **`output.c`** - buffers the whole frame and writes it in a single call
+  to avoid flicker.
 
 This separation makes it easy to swap the rendering layer (e.g. add bars,
 graphs, or export to JSON) without touching the data collection code.

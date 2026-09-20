@@ -36,7 +36,7 @@ print_centered("|_| |_|_| \\_\\_|  |_|\\___/|_| \\_|", cols);
 
     printf("\n");
     print_centered("system-monitor", cols);
-    print_centered("v0.2", cols);
+    print_centered("v0.3", cols);
     printf("\n\n");
     
     const char *init_text = "Initializing";

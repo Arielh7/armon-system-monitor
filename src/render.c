@@ -28,7 +28,7 @@ static void print_section_title(const char *title, int width) {
 }
 
 void dashboard_run(const SystemInfo *sys_info) {
-    printf("\n" COLOR_BOLD COLOR_CHROME "ARMON - System Monitor v0.2" COLOR_RESET "\033[K\n\n");
+    printf("\n" COLOR_BOLD COLOR_CHROME "ARMON - System Monitor v0.3" COLOR_RESET "\033[K\n\n");
 
     char header_line[512];
     snprintf(header_line, sizeof(header_line),
@@ -153,12 +153,11 @@ void dashboard_run(const SystemInfo *sys_info) {
 }
 
 
-    // Prints a single-line summary of the dashboard, suitable for scripting.
+
 void dashboard_run_short(const SystemInfo *sys_info) {
-    // CPU
+
     printf("CPU: %.1f%%", sys_info->cpu_usage);
 
-    // RAM
     if (sys_info->ram_total_kb > 0) {
         float percent = (float)sys_info->ram_used_kb
                       / (float)sys_info->ram_total_kb * 100.0f;
@@ -167,7 +166,6 @@ void dashboard_run_short(const SystemInfo *sys_info) {
         printf("  RAM: N/A");
     }
 
-    // Disk
     if (sys_info->disk_total_kb > 0) {
         float percent = (float)sys_info->disk_used_kb
                       / (float)sys_info->disk_total_kb * 100.0f;
@@ -176,7 +174,6 @@ void dashboard_run_short(const SystemInfo *sys_info) {
         printf("  Disk: N/A");
     }
 
-    // Uptime (compact format: "4h 12m" instead of "4h 12m 33s")
     unsigned long hours   = sys_info->uptime / 3600;
     unsigned long minutes = (sys_info->uptime % 3600) / 60;
     printf("  Uptime: %luh %02lum", hours, minutes);

@@ -40,10 +40,51 @@ cd armon-system-monitor
 make
 ```
 
+## Install
+
+To install ARMON so you can run `armon` from any directory:
+
+```bash
+make install
+```
+
+By default this installs to `~/.local/bin`. If that directory is not in
+your `PATH`, add it to your shell configuration:
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Now you can run `armon` from anywhere:
+
+```bash
+armon -o           # one-line summary
+armon              # live dashboard
+```
+
+To install for all users (requires `sudo`):
+
+```bash
+sudo make install PREFIX=/usr/local
+```
+
+To uninstall:
+
+```bash
+make uninstall
+```
+
+To reinstall (useful after recompiling):
+
+```bash
+make reinstall
+```
+
 ## Usage
 
 ```bash
-./build/armon [options]
+armon [options]
 ```
 
 ### Options
@@ -59,17 +100,17 @@ make
 
 ```bash
 # Live dashboard, refresh every second
-./build/armon
+armon
 
 # Live dashboard, refresh every 5 seconds
-./build/armon -i 5
+armon -i 5
 
 # Print a one-line summary and exit (useful for scripts)
-./build/armon -o
+armon -o
 # Output: CPU: 12.3%  RAM: 43.1%  Disk: 18.1%  Uptime: 4h 12m
 
 # Show help
-./build/armon --help
+armon --help
 ```
 
 Press `Ctrl+C` to exit the live dashboard.

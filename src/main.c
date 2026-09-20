@@ -6,14 +6,14 @@
 #include "render.h"
 #include "splash.h"
 #include "cli.h"
+#include "output.h"
 
 static volatile sig_atomic_t resized = 0;
 
 static void cleanup(int sig) {
     (void)sig;
-
     printf("\033[?25h");
-    printf("\033[?1049l"); 
+    printf("\033[?1049l");
     exit(0);
 }
 
@@ -28,23 +28,14 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (opts.show_help) {
-        cli_print_help();
-        return 0;
-    }
-
-    if (opts.show_version) {
-        cli_print_version();
-        return 0;
-    }
-
+    if (opts.show_help)    { cli_print_help();    return 0; }
+    if (opts.show_version) { cli_print_version(); return 0; }
 
     if (opts.one_shot) {
         SystemInfo sys_info = system_information();
         dashboard_run_short(&sys_info);
         return 0;
     }
-
 
     signal(SIGINT, cleanup);
     signal(SIGWINCH, on_resize);
@@ -60,15 +51,22 @@ int main(int argc, char *argv[]) {
     while (1) {
         SystemInfo sys_info = system_information();
 
+        out_begin();
+
         if (resized) {
-            printf("\033[2J\033[H");
+
+            out_printf("\033[2J\033[H");
             resized = 0;
         } else {
-            printf("\033[H");
+
+            out_printf("\033[H");
         }
 
         dashboard_run(&sys_info);
-        sleep(opts.interval);   
+        out_printf("\033[J");
+        out_flush();
+
+        sleep(opts.interval);
     }
 
     return 0;

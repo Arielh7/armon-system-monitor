@@ -5,40 +5,41 @@
 #include "render.h"
 #include "colors.h"
 #include "health.h"
+#include "output.h"
 
 static void print_uptime(unsigned long uptime) {
     unsigned long hours   = uptime / 3600;
     unsigned long minutes = (uptime % 3600) / 60;
     unsigned long seconds = uptime % 60;
 
-    printf("%luh %02lum %02lus", hours, minutes, seconds);
+    out_printf("%luh %02lum %02lus", hours, minutes, seconds);
 }
 
 static void print_separator(int width) {
-    printf(COLOR_CHROME);
+    out_printf(COLOR_CHROME);
     for (int i = 0; i < width; i++) {
-        printf("\xE2\x94\x81");
+        out_printf("\xE2\x94\x81");
     }
-    printf(COLOR_RESET "\033[K\n");
+    out_printf(COLOR_RESET "\n");
 }
 
 static void print_section_title(const char *title, int width) {
-    printf(COLOR_BOLD COLOR_CHROME " \xE2\x96\xB8 %s" COLOR_RESET "\033[K\n", title);
+    out_printf(COLOR_BOLD COLOR_CHROME " \xE2\x96\xB8 %s" COLOR_RESET "\n", title);
     print_separator(width);
 }
 
 void dashboard_run(const SystemInfo *sys_info) {
-    printf("\n" COLOR_BOLD COLOR_CHROME "ARMON - System Monitor v0.3" COLOR_RESET "\033[K\n\n");
+    out_printf(COLOR_BOLD COLOR_CHROME "ARMON - System Monitor v0.3" COLOR_RESET "\n\n");
 
     char header_line[512];
     snprintf(header_line, sizeof(header_line),
              "Host: %s  |  Kernel: %s",
              sys_info->hostname, sys_info->kernel);
 
-    printf(COLOR_LABEL "%s" COLOR_RESET "\033[K\n", header_line);
+    out_printf(COLOR_LABEL "%s" COLOR_RESET "\n", header_line);
     int sep_width = strlen(header_line);
     print_separator(sep_width);
-    printf("\033[K\n");
+    out_printf("\n");
 
 
     HealthStatus health = health_compute(sys_info);
@@ -48,28 +49,28 @@ void dashboard_run(const SystemInfo *sys_info) {
         case HEALTH_WARN:     health_color = COLOR_YELLOW; break;
         case HEALTH_CRITICAL: health_color = COLOR_RED;    break;
     }
-    printf(COLOR_LABEL "System Health:" COLOR_RESET "  %s\xE2\x97\x8F " COLOR_BOLD "%s" COLOR_RESET "\033[K\n\n",
-           health_color,
-           health_label(health));
+    out_printf(COLOR_LABEL "System Health:" COLOR_RESET "  %s\xE2\x97\x8F " COLOR_BOLD "%s" COLOR_RESET "\n\n",
+               health_color,
+               health_label(health));
 
 
     print_section_title("SYSTEM METRICS", sep_width);
 
-    printf(COLOR_LABEL "%-15s" COLOR_RESET " %s" COLOR_BOLD "%.2f%%" COLOR_RESET "\033[K\n",
-           "CPU Usage:",
-           color_for_percent(sys_info->cpu_usage),
-           sys_info->cpu_usage);
+    out_printf(COLOR_LABEL "%-15s" COLOR_RESET " %s" COLOR_BOLD "%.2f%%" COLOR_RESET "\n",
+               "CPU Usage:",
+               color_for_percent(sys_info->cpu_usage),
+               sys_info->cpu_usage);
 
     if (sys_info->ram_total_kb > 0) {
         float used_gb  = (float)sys_info->ram_used_kb  / (1024.0f * 1024.0f);
         float total_gb = (float)sys_info->ram_total_kb / (1024.0f * 1024.0f);
         float percent  = (float)sys_info->ram_used_kb
                        / (float)sys_info->ram_total_kb * 100.0f;
-        printf(COLOR_LABEL "%-15s" COLOR_RESET " " COLOR_BOLD "%.2f GB / %.2f GB" COLOR_RESET " (%s" COLOR_BOLD "%.1f%%" COLOR_RESET ")\033[K\n",
-               "RAM Usage:", used_gb, total_gb,
-               color_for_percent(percent), percent);
+        out_printf(COLOR_LABEL "%-15s" COLOR_RESET " " COLOR_BOLD "%.2f GB / %.2f GB" COLOR_RESET " (%s" COLOR_BOLD "%.1f%%" COLOR_RESET ")\n",
+                   "RAM Usage:", used_gb, total_gb,
+                   color_for_percent(percent), percent);
     } else {
-        printf(COLOR_LABEL "%-15s" COLOR_RESET " N/A\033[K\n", "RAM Usage:");
+        out_printf(COLOR_LABEL "%-15s" COLOR_RESET " N/A\n", "RAM Usage:");
     }
 
     if (sys_info->swap_total_kb > 0) {
@@ -77,11 +78,11 @@ void dashboard_run(const SystemInfo *sys_info) {
         float total_gb = (float)sys_info->swap_total_kb / (1024.0f * 1024.0f);
         float percent  = (float)sys_info->swap_used_kb
                        / (float)sys_info->swap_total_kb * 100.0f;
-        printf(COLOR_LABEL "%-15s" COLOR_RESET " " COLOR_BOLD "%.2f GB / %.2f GB" COLOR_RESET " (%s" COLOR_BOLD "%.1f%%" COLOR_RESET ")\033[K\n",
-               "Swap Usage:", used_gb, total_gb,
-               color_for_percent(percent), percent);
+        out_printf(COLOR_LABEL "%-15s" COLOR_RESET " " COLOR_BOLD "%.2f GB / %.2f GB" COLOR_RESET " (%s" COLOR_BOLD "%.1f%%" COLOR_RESET ")\n",
+                   "Swap Usage:", used_gb, total_gb,
+                   color_for_percent(percent), percent);
     } else {
-        printf(COLOR_LABEL "%-15s" COLOR_RESET " N/A\033[K\n", "Swap Usage:");
+        out_printf(COLOR_LABEL "%-15s" COLOR_RESET " N/A\n", "Swap Usage:");
     }
 
     if (sys_info->disk_total_kb > 0) {
@@ -89,25 +90,25 @@ void dashboard_run(const SystemInfo *sys_info) {
         float total_gb = (float)sys_info->disk_total_kb / (1024.0f * 1024.0f);
         float percent  = (float)sys_info->disk_used_kb
                        / (float)sys_info->disk_total_kb * 100.0f;
-        printf(COLOR_LABEL "%-15s" COLOR_RESET " " COLOR_BOLD "%.2f GB / %.2f GB" COLOR_RESET " (%s" COLOR_BOLD "%.1f%%" COLOR_RESET ")\033[K\n",
-               "Disk Usage:", used_gb, total_gb,
-               color_for_percent(percent), percent);
+        out_printf(COLOR_LABEL "%-15s" COLOR_RESET " " COLOR_BOLD "%.2f GB / %.2f GB" COLOR_RESET " (%s" COLOR_BOLD "%.1f%%" COLOR_RESET ")\n",
+                   "Disk Usage:", used_gb, total_gb,
+                   color_for_percent(percent), percent);
     } else {
-        printf(COLOR_LABEL "%-15s" COLOR_RESET " N/A\033[K\n", "Disk Usage:");
+        out_printf(COLOR_LABEL "%-15s" COLOR_RESET " N/A\n", "Disk Usage:");
     }
 
-    printf(COLOR_LABEL "%-15s" COLOR_RESET " " COLOR_BOLD, "System Uptime:");
+    out_printf(COLOR_LABEL "%-15s" COLOR_RESET " " COLOR_BOLD, "System Uptime:");
     print_uptime(sys_info->uptime);
-    printf(COLOR_RESET "\033[K\n\n");
+    out_printf(COLOR_RESET "\n\n");
 
-
+  
     print_section_title("LOAD AVERAGE", sep_width);
 
-    printf(COLOR_LABEL "%-15s" COLOR_RESET " " COLOR_BOLD "%.2f  %.2f  %.2f" COLOR_RESET "   (1m / 5m / 15m)\033[K\n",
-           "Load Average:",
-           sys_info->load_1min,
-           sys_info->load_5min,
-           sys_info->load_15min);
+    out_printf(COLOR_LABEL "%-15s" COLOR_RESET " " COLOR_BOLD "%.2f  %.2f  %.2f" COLOR_RESET "   (1m / 5m / 15m)\n",
+               "Load Average:",
+               sys_info->load_1min,
+               sys_info->load_5min,
+               sys_info->load_15min);
 
     float load = sys_info->load_1min;
     int cores = sys_info->cpu_cores;
@@ -125,37 +126,27 @@ void dashboard_run(const SystemInfo *sys_info) {
         status_color = COLOR_GREEN;
     }
 
-    printf(COLOR_LABEL "%-15s" COLOR_RESET " %s" COLOR_BOLD "%s" COLOR_RESET " (%d cores)\033[K\n",
-           "Load Status:", status_color, status, cores);
+    out_printf(COLOR_LABEL "%-15s" COLOR_RESET " %s" COLOR_BOLD "%s" COLOR_RESET " (%d cores)\n",
+               "Load Status:", status_color, status, cores);
 
 
-    printf("\033[K\n");
+    out_printf("\n");
     print_section_title("TOP PROCESSES (by RAM)", sep_width);
 
-
-    printf(COLOR_LABEL "   %-20s %6s %11s" COLOR_RESET "\033[K\n",
-           "PROCESS", "PID", "MEMORY");
+    out_printf(COLOR_LABEL "   %-20s %6s %11s" COLOR_RESET "\n",
+               "PROCESS", "PID", "MEMORY");
 
     for (int i = 0; i < sys_info->top_ram_count; i++) {
         float ram_mb = (float)sys_info->top_ram[i].ram_kb / 1024.0f;
-        printf(COLOR_LABEL "%d. %-20s %6d %8.1f MB" COLOR_RESET "\033[K\n",
-               i + 1,
-               sys_info->top_ram[i].name,
-               sys_info->top_ram[i].pid,
-               ram_mb);
+        out_printf(COLOR_LABEL "%d. %-20s %6d %8.1f MB" COLOR_RESET "\n",
+                   i + 1,
+                   sys_info->top_ram[i].name,
+                   sys_info->top_ram[i].pid,
+                   ram_mb);
     }
-
-
-    printf("\033[K\n");
-
-
-
 }
 
-
-
 void dashboard_run_short(const SystemInfo *sys_info) {
-
     printf("CPU: %.1f%%", sys_info->cpu_usage);
 
     if (sys_info->ram_total_kb > 0) {

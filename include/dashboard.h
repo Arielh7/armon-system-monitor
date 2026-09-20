@@ -1,5 +1,13 @@
 #ifndef DASHBOARD_H
 #define DASHBOARD_H
+#define TOP_PROCESSES_MAX 256
+#define TOP_N 5
+
+typedef struct {
+    int pid;
+    char name[64];
+    unsigned long ram_kb;
+} TopProcess;
 
 typedef struct {
     float cpu_usage;
@@ -16,7 +24,8 @@ typedef struct {
     float load_5min;      
     float load_15min;     
     int   cpu_cores;   
-    
+        TopProcess top_ram[TOP_N]; 
+    int top_ram_count;
 } SystemInfo;
 
 SystemInfo system_information();

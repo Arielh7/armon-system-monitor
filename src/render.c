@@ -40,6 +40,7 @@ void dashboard_run(const SystemInfo *sys_info) {
     print_separator(sep_width);
     printf("\033[K\n");
 
+
     HealthStatus health = health_compute(sys_info);
     const char *health_color;
     switch (health) {
@@ -50,6 +51,7 @@ void dashboard_run(const SystemInfo *sys_info) {
     printf(COLOR_LABEL "System Health:" COLOR_RESET "  %s\xE2\x97\x8F " COLOR_BOLD "%s" COLOR_RESET "\033[K\n\n",
            health_color,
            health_label(health));
+
 
     print_section_title("SYSTEM METRICS", sep_width);
 
@@ -98,6 +100,7 @@ void dashboard_run(const SystemInfo *sys_info) {
     print_uptime(sys_info->uptime);
     printf(COLOR_RESET "\033[K\n\n");
 
+
     print_section_title("LOAD AVERAGE", sep_width);
 
     printf(COLOR_LABEL "%-15s" COLOR_RESET " " COLOR_BOLD "%.2f  %.2f  %.2f" COLOR_RESET "   (1m / 5m / 15m)\033[K\n",
@@ -124,6 +127,23 @@ void dashboard_run(const SystemInfo *sys_info) {
 
     printf(COLOR_LABEL "%-15s" COLOR_RESET " %s" COLOR_BOLD "%s" COLOR_RESET " (%d cores)\033[K\n",
            "Load Status:", status_color, status, cores);
+
+
+    printf("\033[K\n");
+    print_section_title("TOP PROCESSES (by RAM)", sep_width);
+
+
+    printf(COLOR_LABEL "   %-20s %6s %11s" COLOR_RESET "\033[K\n",
+           "PROCESS", "PID", "MEMORY");
+
+    for (int i = 0; i < sys_info->top_ram_count; i++) {
+        float ram_mb = (float)sys_info->top_ram[i].ram_kb / 1024.0f;
+        printf(COLOR_LABEL "%d. %-20s %6d %8.1f MB" COLOR_RESET "\033[K\n",
+               i + 1,
+               sys_info->top_ram[i].name,
+               sys_info->top_ram[i].pid,
+               ram_mb);
+    }
 
     printf("\033[K\n");
 }

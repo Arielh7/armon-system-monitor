@@ -5,6 +5,7 @@
 #include <sys/statvfs.h>
 #include <unistd.h>   
 #include <sys/utsname.h>  
+#include "processes.h"
 
 static unsigned long prev_idle  = 0;
 static unsigned long prev_total = 0;
@@ -172,6 +173,10 @@ SystemInfo system_information() {
     read_system_info(&sys_info);
     read_loadavg(&sys_info);
     read_cpu_cores(&sys_info);
+
+    static TopProcess procs[TOP_PROCESSES_MAX];
+    int count = processes_read(procs, TOP_PROCESSES_MAX);
+    processes_get_top_ram(&sys_info, procs, count, TOP_N);
 
     return sys_info;
 }

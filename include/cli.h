@@ -5,7 +5,9 @@
 
 typedef struct {
     bool show_help;      
-    bool show_version;   
+    bool show_version; 
+    bool one_shot;     
+    int  interval;        
 } CliOptions;
 
 int cli_parse(int argc, char *argv[], CliOptions *opts);

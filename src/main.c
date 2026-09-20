@@ -38,6 +38,14 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+
+    if (opts.one_shot) {
+        SystemInfo sys_info = system_information();
+        dashboard_run_short(&sys_info);
+        return 0;
+    }
+
+
     signal(SIGINT, cleanup);
     signal(SIGWINCH, on_resize);
 
@@ -47,20 +55,20 @@ int main(int argc, char *argv[]) {
     printf("\033[2J\033[H");
     splash_screen();
 
-    printf("\033[2J\033[H"); 
+    printf("\033[2J\033[H");
 
     while (1) {
         SystemInfo sys_info = system_information();
 
-                 if (resized) {
-            printf("\033[2J\033[H"); 
+        if (resized) {
+            printf("\033[2J\033[H");
             resized = 0;
         } else {
             printf("\033[H");
         }
 
         dashboard_run(&sys_info);
-        sleep(1);
+        sleep(opts.interval);   
     }
 
     return 0;

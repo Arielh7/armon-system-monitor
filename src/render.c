@@ -145,5 +145,41 @@ void dashboard_run(const SystemInfo *sys_info) {
                ram_mb);
     }
 
+
     printf("\033[K\n");
+
+
+
+}
+
+
+    // Prints a single-line summary of the dashboard, suitable for scripting.
+void dashboard_run_short(const SystemInfo *sys_info) {
+    // CPU
+    printf("CPU: %.1f%%", sys_info->cpu_usage);
+
+    // RAM
+    if (sys_info->ram_total_kb > 0) {
+        float percent = (float)sys_info->ram_used_kb
+                      / (float)sys_info->ram_total_kb * 100.0f;
+        printf("  RAM: %.1f%%", percent);
+    } else {
+        printf("  RAM: N/A");
+    }
+
+    // Disk
+    if (sys_info->disk_total_kb > 0) {
+        float percent = (float)sys_info->disk_used_kb
+                      / (float)sys_info->disk_total_kb * 100.0f;
+        printf("  Disk: %.1f%%", percent);
+    } else {
+        printf("  Disk: N/A");
+    }
+
+    // Uptime (compact format: "4h 12m" instead of "4h 12m 33s")
+    unsigned long hours   = sys_info->uptime / 3600;
+    unsigned long minutes = (sys_info->uptime % 3600) / 60;
+    printf("  Uptime: %luh %02lum", hours, minutes);
+
+    printf("\n");
 }
